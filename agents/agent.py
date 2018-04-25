@@ -41,10 +41,14 @@ class Agent():
         self.gamma = 0.99  # discount factor
         self.tau = 0.01  # for soft update of target parameters
 
+        self.best_score = -np.inf
+        self.score = 0
+
     def reset_episode(self):
         self.noise.reset()
         state = self.task.reset()
         self.last_state = state
+        self.score = 0
         return state
 
     def step(self, action, reward, next_state, done):
@@ -59,9 +63,14 @@ class Agent():
         # Roll over last state and action
         self.last_state = next_state
 
-    def act(self, state):
+        self.score += reward
+        if done:
+            if self.score > self.best_score:
+                self.best_score = self.score
+
+    def act(self, states):
         """Returns actions for given state(s) as per current policy."""
-        state = np.reshape(state, [-1, self.state_size])
+        state = np.reshape(states, [-1, self.state_size])
         action = self.actor_local.model.predict(state)[0]
         return list(action + self.noise.sample())  # add some noise for exploration
 
