@@ -1,4 +1,4 @@
-from keras import layers, models, optimizers
+from keras import layers, models, optimizers, regularizers
 from keras import backend as K
 
 class Actor:
@@ -29,20 +29,25 @@ class Actor:
         # Define input layer (states)
         states = layers.Input(shape=(self.state_size,), name='states')
 
-        # Add hidden layers
-        net = layers.Dense(units=32, activation='relu')(states)
-        net = layers.Dense(units=64, activation='relu')(net)
-        net = layers.Dense(units=32, activation='relu')(net)
+        # Layer 1: state -> (bn) -> relu
+        net = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(states)
+        net = layers.BatchNormalization()(net)
+        net = layers.Activation('relu')(net)
 
-        # Try different layer sizes, activations, add batch normalization, regularizers, etc.
+        # Layer 2: Layer 1 -> (bn) -> relu
+        net = layers.Dense(units=400, kernel_regularizer=regularizers.l2(0.01))(net)
+        net = layers.BatchNormalization()(net)
+        net = layers.Activation('relu')(net)
 
-        # Add final output layer with sigmoid activation
-        raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
-            name='raw_actions')(net)
+        # Layer 3: Layer 2 -> tanh -> actions -> actions_scaled
+        net = layers.Dense(units=self.action_size, kernel_regularizer=regularizers.l2(0.01))(net)
+        actions = layers.Activation('tanh')(net)
+        # raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
+        #     name='raw_actions')(net)
 
         # Scale [0, 1] output for each action dimension to proper range
         actions = layers.Lambda(lambda x: (x * self.action_range) + self.action_low,
-            name='actions')(raw_actions)
+            name='actions')(actions)
 
         # Create Keras model
         self.model = models.Model(inputs=states, outputs=actions)
@@ -52,6 +57,8 @@ class Actor:
         loss = K.mean(-action_gradients * actions)
 
         # Incorporate any additional losses here (e.g. from regularizers)
+        for l2_regularizer_loss in self.model.losses:
+            loss += l2_regularizer_loss
 
         # Define optimizer and training function
         optimizer = optimizers.Adam()

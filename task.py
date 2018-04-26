@@ -32,6 +32,25 @@ class Task():
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
+        # distance = np.sqrt(np.sum((self.sim.pose[:6] - self.target_pos[:6])**2))
+        # self.durationTotal += timeDiff
+        # reward = 0
+        # # evaluate duration when the copter was in the "hover point"
+        # if (distance < 3):
+        #     reward +=10
+        #     self.durationHoverClose +=timeDiff
+        # else:
+        #     self.durationHoverClose =0
+        #     reward = -min(distance, 120.0)
+        # return reward
+
+        # reward = 1. - 0.3 * (abs(self.sim.pose[:3] - self.target_pos)).sum()
+        # if reward > 1:
+        #     reward = 1
+        # if reward < -1:
+        #     reward = -1
+        # return reward
+
         reward = 0
         penalty = 0
         current_position = self.sim.pose[:3]
