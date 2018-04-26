@@ -1,3 +1,6 @@
+"""Modifications to initial task.py template inspired by
+https://github.com/domangi/rl-quadcopter/blob/master/task.py"""
+
 import numpy as np
 from physics_sim import PhysicsSim
 
@@ -16,9 +19,10 @@ class Task():
         """
         # Simulation
         self.sim = PhysicsSim(init_pose, init_velocities, init_angle_velocities, runtime)
+        self.start_pos = self.sim.pose[:3]
         self.action_repeat = 3
 
-        self.state_size = self.action_repeat * 6
+        self.state_size = self.action_repeat * (6 + 3 + 3)
         self.action_low = 0
         self.action_high = 900
         self.action_size = 4
@@ -28,7 +32,23 @@ class Task():
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        # reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        # distance = np.sqrt(np.sum((self.sim.pose[:6] - self.target_pos[:6])**2))
+        # self.durationTotal += timeDiff
+        # reward = 0
+        # # evaluate duration when the copter was in the "hover point"
+        # if (distance < 3):
+        #     reward +=10
+        #     self.durationHoverClose +=timeDiff
+        # else:
+        #     self.durationHoverClose =0
+        #     reward = -min(distance, 120.0)
+        # return reward
+
+        # reward = 1. - 0.3 * (abs(self.sim.pose[:3] - self.target_pos)).sum()
+        # if reward > 1:
+        #     reward = 1
+        # if reward < -1:
+        #     reward = -1
         # return reward
 
         reward = 0
@@ -55,7 +75,7 @@ class Task():
         reward += 100
 
         # reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
-        return np.tanh(reward - penalty * 0.0002)
+        return reward - penalty * 0.0002
 
     def step(self, rotor_speeds):
         """Uses action to obtain next state, reward, done."""
@@ -64,12 +84,18 @@ class Task():
         for _ in range(self.action_repeat):
             done = self.sim.next_timestep(rotor_speeds) # update the sim pose and velocities
             reward += self.get_reward()
-            pose_all.append(self.sim.pose)
+            state = self.current_state()
+            pose_all.append(self.current_state())
         next_state = np.concatenate(pose_all)
         return next_state, reward, done
+
+    def current_state(self):
+        """contains information about current position, velocity and angular velocity"""
+        state = np.concatenate([np.array(self.sim.pose), np.array(self.sim.v), np.array(self.sim.angular_v)])
+        return state
 
     def reset(self):
         """Reset the sim to start a new episode."""
         self.sim.reset()
-        state = np.concatenate([self.sim.pose] * self.action_repeat)
+        state = np.concatenate([self.current_state()] * self.action_repeat)
         return state
