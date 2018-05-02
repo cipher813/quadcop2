@@ -1,7 +1,7 @@
-from utils.actor import Actor
-from utils.critic import Critic
-from utils.replay_buffer import ReplayBuffer
-from utils.ou_noise import OUNoise
+from agents.actor import Actor
+from agents.critic import Critic
+from agents.replay_buffer import ReplayBuffer
+from agents.ou_noise import OUNoise
 
 import numpy as np
 
@@ -48,7 +48,7 @@ class Agent():
         self.noise.reset()
         state = self.task.reset()
         self.last_state = state
-        self.score = 0
+        # self.score = 0
         return state
 
     def step(self, action, reward, next_state, done):
@@ -63,10 +63,10 @@ class Agent():
         # Roll over last state and action
         self.last_state = next_state
 
-        self.score += reward
-        if done:
-            if self.score > self.best_score:
-                self.best_score = self.score
+        # self.score += reward
+        # if done:
+        #     if self.score > self.best_score:
+        #         self.best_score = self.score
 
     def act(self, states):
         """Returns actions for given state(s) as per current policy."""

@@ -26,12 +26,13 @@ class Critic:
         actions = layers.Input(shape=(self.action_size,), name='actions')
 
         # Layer 1: states -> fc -> (bn) -> relu
-        net = layers.Dense(units=400, kernel_regularizer=regularizers.l2(0.01))(states)
-        net = layers.BatchNormalization()(net)
-        net = layers.Activation('relu')(net)
+        net_states = layers.Dense(units=400, kernel_regularizer=regularizers.l2(0.01))(states)
+        net_states = layers.BatchNormalization()(net_states)
+        net_states = layers.Activation('relu')(net_states)
 
         # Layer 2: Merge[Layer1 -> fc, actions -> fc] -> (bn) -> relu
-        net_states = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(net)
+        net_states = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(net_states)
+
         net_actions = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(actions)
 
 
@@ -48,19 +49,19 @@ class Critic:
 
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
-        net = layers.BatchNormalization()(net)
+        # net = layers.BatchNormalization()(net)
         net = layers.Activation('relu')(net)
 
         # Add more layers to the combined network if needed
 
         # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, kernel_regularizer=regularizers.l2(0.01))(net)
+        Q_values = layers.Dense(units=1, name='q_values', kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
 
         # Define optimizer and compile model for training with built-in loss function
-        optimizer = optimizers.Adam()
+        optimizer = optimizers.Adam(lr=0.001)
         self.model.compile(optimizer=optimizer, loss='mse')
 
         # Compute action gradients (derivative of Q values w.r.t. to actions)
