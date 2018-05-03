@@ -1,5 +1,5 @@
 import numpy as np
-from physics_sim import PhysicsSim
+from tasks.physics_sim import PhysicsSim
 
 class Task():
     """Task (environment) that defines the goal and provides feedback to the agent."""
@@ -28,7 +28,7 @@ class Task():
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = np.tanh(1 - 0.1*(abs(self.sim.pose[:3] - self.target_pos))).sum() # 0.003
+        reward = np.tanh(1 - 0.001*(abs(self.sim.pose[:3] - self.target_pos)).sum())
         return reward
 
 
@@ -40,8 +40,8 @@ class Task():
             done = self.sim.next_timestep(rotor_speeds) # update the sim pose and velocities
             reward += self.get_reward()
             pose_all.append(self.sim.pose)
-            if done:
-                reward +=100
+            # if done:
+            #     reward +=100
         next_state = np.concatenate(pose_all)
         return next_state, reward, done
 

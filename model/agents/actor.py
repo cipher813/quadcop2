@@ -41,7 +41,9 @@ class Actor:
 
         # Layer 3: Layer 2 -> tanh -> actions -> actions_scaled
         raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
-                        name='raw_actions',kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003))(net)
+                        name='raw_actions',
+                        kernel_initializer=layers.initializers.RandomUniform(minval=-3e-3,
+                        maxval=3e-3))(net)
 
         # net = layers.Dense(units=self.action_size, kernel_regularizer=regularizers.l2(0.01))(net)
         # actions = layers.Activation('tanh')(net)

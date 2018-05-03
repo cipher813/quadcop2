@@ -55,7 +55,9 @@ class Critic:
         # Add more layers to the combined network if needed
 
         # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values', kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003))(net)
+        Q_values = layers.Dense(units=1, name='q_values',
+        kernel_initializer=layers.initializers.RandomUniform(minval=-3e-3,
+        maxval=3e-3))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
