@@ -31,21 +31,8 @@ class Critic:
         net_states = layers.Activation('relu')(net_states)
 
         # Layer 2: Merge[Layer1 -> fc, actions -> fc] -> (bn) -> relu
-        net_states = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(net_states)
-
-        net_actions = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(actions)
-
-
-
-        # Add hidden layer(s) for state pathway
-        # net_states = layers.Dense(units=32, activation='relu')(states)
-        # net_states = layers.Dense(units=64, activation='relu')(net_states)
-
-        # Add hidden layer(s) for action pathway
-        # net_actions = layers.Dense(units=32, activation='relu')(actions)
-        # net_actions = layers.Dense(units=64, activation='relu')(net_actions)
-
-        # Try different layer sizes, activations, add batch normalization, regularizers, etc.
+        net_states = layers.Dense(units=600, activation='linear',kernel_regularizer=regularizers.l2(0.01))(net_states)
+        net_actions = layers.Dense(units=600, activation='linear',kernel_regularizer=regularizers.l2(0.01))(actions)
 
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
