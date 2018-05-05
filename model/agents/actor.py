@@ -35,7 +35,7 @@ class Actor:
         net = layers.Activation('relu')(net)
 
         # Layer 2: Layer 1 -> (bn) -> relu
-        net = layers.Dense(units=600, kernel_regularizer=regularizers.l2(0.01))(net)
+        net = layers.Dense(units=300, kernel_regularizer=regularizers.l2(0.01))(net)
         net = layers.BatchNormalization()(net)
         net = layers.Activation('relu')(net)
 
